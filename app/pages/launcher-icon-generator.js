@@ -57,7 +57,7 @@ const NO_SHAPE_EFFECT_OPTIONS = [
 
 export class LauncherIconGenerator extends BaseGenerator {
   get densities() {
-    return new Set(['xxxhdpi' /* must be first */, 'web', 'xxhdpi', 'xhdpi', 'hdpi', 'mdpi']);
+    return new Set(['xxxhdpi' /* must be first */, 'web', 'xxweb', 'xxhdpi', 'xhdpi', 'hdpi', 'mdpi']);
   }
 
   get gridOverlaySvg() {
@@ -142,7 +142,7 @@ export class LauncherIconGenerator extends BaseGenerator {
 
     this.densities.forEach(density => {
       let ctx;
-      if (density == 'xxxhdpi' || density == 'web') {
+      if (density == 'xxxhdpi' || density == 'web' || density == 'xxweb') {
         ctx = this.regenerateRawAtDensity_(density);
         if (density == 'xxxhdpi') {
           xxxhdpiCtx = ctx;
@@ -161,7 +161,9 @@ export class LauncherIconGenerator extends BaseGenerator {
       this.zipper.add({
         name: (density == 'web')
             ? 'web_hi_res_512.png'
-            : `res/mipmap-${density}/${values.name}.png`,
+            : (density == 'xxweb'
+			? 'web_hi_res_1024.png'
+			: `res/mipmap-${density}/${values.name}.png`),
         canvas: ctx.canvas
       });
 
@@ -175,7 +177,9 @@ export class LauncherIconGenerator extends BaseGenerator {
     let mult = studio.Util.getMultBaseMdpi(density);
     if (density == 'web') {
       mult = 512 / 48;
-    }
+    } else if(density == 'xxweb'){
+      mult = 1024 / 48;
+	}
 
     let iconSize = studio.Util.multRound(ICON_SIZE, mult);
     let targetRect = TARGET_RECTS_BY_SHAPE[values.backgroundShape];
